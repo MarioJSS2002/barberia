@@ -1,10 +1,12 @@
 import React from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import "./Login.css";
-
+import { useNavigate } from 'react-router-dom';
 export default function Login() {
+
   const [params] = useSearchParams();
   const justRegistered = params.get("registered") === "1";
+  const navigate = useNavigate();
 
   const onSubmit = (e) => {
     e.preventDefault();
@@ -16,6 +18,7 @@ export default function Login() {
       return;
     }
     alert(`Entrando como ${username}…`);
+    navigate("/book", { replace: true });
   };
 
   return (
