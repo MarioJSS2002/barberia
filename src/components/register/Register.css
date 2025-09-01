@@ -1,0 +1,113 @@
+.register {
+  width: 100%;
+  max-width: 640px;
+  position: relative;
+}
+.register__card {
+  position: relative;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 32px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+}
+.register__card::after {
+  content: "";
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  bottom: -14px;
+  height: 28px;
+  background: radial-gradient(
+    60% 120% at 50% -10%,
+    rgba(239, 68, 68, 0.35),
+    transparent 60%
+  );
+  filter: blur(10px);
+}
+.register__title {
+  margin: 0 0 16px;
+  text-align: center;
+  line-height: 0.95;
+  font-size: 48px;
+  color: #fff;
+  letter-spacing: 1px;
+}
+
+.register__form {
+  display: grid;
+  gap: 16px;
+}
+.field {
+  display: grid;
+  gap: 6px;
+}
+.field__label {
+  color: #d1d5db;
+  font-size: 13px;
+}
+.field__input {
+  width: 100%;
+  background: var(--input);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  color: #e5e7eb;
+  padding: 12px 14px;
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.field__input::placeholder {
+  color: #9ca3af;
+}
+.field__input:focus {
+  border-color: var(--red);
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.35);
+}
+
+.btn {
+  width: 100%;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+}
+.btn--primary {
+  background: var(--red);
+  color: #fff;
+  box-shadow: 0 10px 24px rgba(220, 38, 38, 0.35);
+}
+.btn--primary:hover {
+  background: var(--red-500);
+}
+
+.register__footer {
+  margin-top: 18px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--muted);
+}
+.link-red {
+  color: var(--red);
+  text-decoration: none;
+}
+.link-red:hover {
+  color: var(--red-500);
+}
+
+.field__input:focus-visible,
+.btn--primary:focus-visible,
+.link-red:focus-visible {
+  outline: 2px solid var(--red);
+  outline-offset: 2px;
+}
+
+@media (min-width: 640px) {
+  .register__card {
+    padding: 36px 40px;
+  }
+  .register__title {
+    font-size: 56px;
+  }
+}
