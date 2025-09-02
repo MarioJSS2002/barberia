@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import "./Booking.css";
 
 const SERVICES = [
@@ -29,8 +29,8 @@ const SERVICES = [
 ];
 
 const BARBERS = [
-  { id: "b1", name: "Johnny Blade" },
-  { id: "b2", name: "Rocko Steel" },
+  { id: "b1", name: "Yiyo Blade" },
+  { id: "b2", name: "Douglas Steel" },
   { id: "b3", name: "Ace Scissors" },
 ];
 
@@ -42,6 +42,9 @@ const TIMES = [
   "02:00 PM",
   "03:00 PM",
   "04:00 PM",
+  "05:00 PM",
+  "06:00 PM",
+  "07:00 PM",
 ];
 
 function useCalendar(initial = new Date()) {
@@ -101,6 +104,35 @@ export default function Booking() {
     return t;
   }, []);
 
+  // helper: parse time like "09:00 AM" into 24h {h,m}
+  const parseTime = (timeStr) => {
+    const [timePart, ampm] = timeStr.split(" ");
+    const [hh, mm] = timePart.split(":").map(Number);
+    let h = hh % 12;
+    if (ampm && ampm.toUpperCase() === "PM") h += 12;
+    return { h, m: mm };
+  };
+
+  const isSameDay = (a, b) =>
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate();
+
+  // when user picks a date, if it's today pick the first future time automatically
+  useEffect(() => {
+    if (!selectedDate) return;
+    const sel = new Date(selectedDate);
+    const now = new Date();
+    if (!isSameDay(sel, now)) return;
+    const firstAvailable = TIMES.find((t) => {
+      const { h, m } = parseTime(t);
+      const dt = new Date(sel);
+      dt.setHours(h, m, 0, 0);
+      return dt > now;
+    });
+    if (firstAvailable) setTime(firstAvailable);
+  }, [selectedDate]);
+
   const confirm = (e) => {
     e.preventDefault();
     if (!serviceId || !selectedDate) {
@@ -108,11 +140,12 @@ export default function Booking() {
       return;
     }
 
-    // prevent confirming a past date
-    const selected = new Date(selectedDate);
-    selected.setHours(0, 0, 0, 0);
-    if (selected < todayStart) {
-      alert("No puedes reservar en una fecha pasada.");
+    // prevent confirming a past datetime
+    const sel = new Date(selectedDate);
+    const { h, m } = parseTime(time);
+    sel.setHours(h, m, 0, 0);
+    if (sel <= new Date()) {
+      alert("No puedes reservar en una fecha u hora pasada.");
       return;
     }
 
@@ -149,7 +182,9 @@ export default function Booking() {
                     <div className="service__name">{s.name}</div>
                     <div className="service__desc">{s.desc}</div>
                   </div>
-                  <div className="service__price">{formatter.format(s.price)}</div>
+                  <div className="service__price">
+                    {formatter.format(s.price)}
+                  </div>
                 </button>
               </li>
             ))}
@@ -177,7 +212,7 @@ export default function Booking() {
           </div>
 
           <div className="cal__grid cal__week">
-            {['DO', 'LU', 'MA', 'MI', 'JU', 'VI', 'SA'].map((d) => (
+            {["DO", "LU", "MA", "MI", "JU", "VI", "SA"].map((d) => (
               <div key={d} className="cal__dow">
                 {d}
               </div>
@@ -203,7 +238,9 @@ export default function Booking() {
                   type="button"
                   key={idx}
                   disabled={isEmpty || isPast}
-                  onClick={() => d && !isPast && setSelectedDate(d.toISOString())}
+                  onClick={() =>
+                    d && !isPast && setSelectedDate(d.toISOString())
+                  }
                   className={`cal__day ${isEmpty ? "is-empty" : ""} ${
                     isSelected ? "is-selected" : ""
                   } ${isPast ? "is-past" : ""}`}
@@ -236,11 +273,22 @@ export default function Booking() {
                 value={time}
                 onChange={(e) => setTime(e.target.value)}
               >
-                {TIMES.map((t) => (
-                  <option key={t} value={t}>
-                    {t}
-                  </option>
-                ))}
+                {TIMES.map((t) => {
+                  const now = new Date();
+                  const isToday =
+                    selectedDate && isSameDay(new Date(selectedDate), now);
+                  const { h, m } = parseTime(t);
+                  const optDate = selectedDate
+                    ? new Date(selectedDate)
+                    : new Date();
+                  optDate.setHours(h, m, 0, 0);
+                  const disabled = isToday && optDate <= now;
+                  return (
+                    <option key={t} value={t} disabled={disabled}>
+                      {t}
+                    </option>
+                  );
+                })}
               </select>
             </label>
           </div>
